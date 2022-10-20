@@ -1,11 +1,12 @@
 using Microsoft.Extensions.Options;
-using System.Configuration;
 using WebAppSample;
 
 var builder = WebApplication.CreateBuilder(args);
 
 IConfiguration config = builder.Configuration;
 builder.Services.Configure<MyConfigurationClass>(config.GetSection("AppParameters"));
+
+builder.Services.AddScoped<TestService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -29,6 +30,10 @@ app.MapGet("/test", ( IOptions<MyConfigurationClass> options) =>
 })
 .WithName("Test");
 
-app.Run();
+app.MapGet("/test2", (TestService service) =>
+{
+    var resp = service.Hello();
+    return resp;
+}).WithName("Test2");
 
-public record MyConfiguration( string Language, string DefaultExchange, string DateTimeFormat );
+app.Run();
